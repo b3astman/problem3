@@ -24,8 +24,8 @@ typedef struct pcb {
   unsigned long pc;
 
   int MAX_PC = 2345; // after PC reaches this, reset to zero
-  char* creation; //computer clock time when a process is created. 
-  char* termination; //computer clock time when process terminates and goes into termination list
+   creation; //computer clock time when a process is created. 
+   termination; //computer clock time when process terminates and goes into termination list
   int TERMINATE = 1; //process will terminate after this (1) many times it passes the MAX_PC
   int term_count; // counter to keep track of how many times the process has passed MAX_PC
   int[] I / O_trap1; //four numbers representing the PC counter where the process will execute -
