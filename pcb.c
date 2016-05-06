@@ -22,6 +22,17 @@ int PCB_init(PCB_p pcb) {
     pcb->state = (State) DEFAULT_STATE;
     pcb->priority = DEFAULT_PRIORITY;
     pcb->pc = DEFAULT_PC;
+	/*
+	creation; //computer clock time when a process is created. 
+	termination; //computer clock time when process terminates and goes into termination list
+	int TERMINATE = 1; //process will terminate after this (1) many times it passes the MAX_PC
+	int term_count; // counter to keep track of how many times the process has passed MAX_PC
+	*/
+	int i;
+	for (i = 0; i < 4; i++) {
+		pcb->trap1[i] = rand();
+		pcb->trap2[i] = rand();
+	}
     return SUCCESS;
 }
 
@@ -131,17 +142,21 @@ int PCB_get_term_count(PCB_p pcb) {
 	return pcb->term_count;
 }
 
+/*
 void PCB_set_trap1(PCB_p pcb, int trap1, int index) {
 	pcb->trap1[0] = trap1;
 }
+*/
 
 int[] PCB_get_trap1(PCB_p pcb) {
 	pcb->trap1;
 }
 
+/*
 void PCB_set_trap2(PCB_p, int trap2, int index) {
 	pcb->trap2[index] = trap2;
 }
+*/
 
 int[] PCB_get_trap2(PCB_p) {
 	pcb->trap2;
