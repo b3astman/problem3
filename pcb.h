@@ -55,9 +55,9 @@ void PCB_set_termination(char*);
 int PCB_get_TERMINATE();
 void PCB_set_term_count(int);
 int PCB_get_term_count;
-void PCB_set_trap1(int);
+//void PCB_set_trap1(int);
 int[] PCB_get_trap1();
-void PCB_set_trap2(int);
+//void PCB_set_trap2(int);
 int[] PCB_get_trap2();
 
 #endif
