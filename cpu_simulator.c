@@ -9,7 +9,9 @@ int main(void) {
 }
 
 void CPU_loop(void);
-void timerIR(void);
+void timerIR(void) {
+
+}
 void pseudoISR(void);
 void io_timer1(void);
 void io_timer2(void);
