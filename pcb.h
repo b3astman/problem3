@@ -23,31 +23,14 @@ typedef struct pcb {
   unsigned short priority;
   unsigned long pc;
 
-  int MAX_PC = 2345;
-  //Computer clock time when process was created. You will need
-  // to capture the time when the process is instantiated and
-  // store it here. 
-  char* creationTime;
-  //Computer clock time when the process terminates and goes into
-  //the termination list. If the process does not terminiate 
-  //during the run no time need be recorded. 
-  char* terminationTime;
-  //This is a control field. if the number is 0 then the process 
-  //is not one that terminates over the course of the simulation
-  //run.If it is greater than 0 then this is the number of times 
-  //that the PC will pass its MAX_PC value. for example if this 
-  //number is set to 15 then the process will terminate after 15
-  //times it passes 2345 execution cycles. 
-  int terminateCount;
-  //This is the counter to keep track of how many times the 
-  //process has passed its MAX_PC value.
-  Term_Count
-  //These two fields can be simple integer arrays. Each one contain
-  //four numbers representing the PC count where the process will
-  //execute an I/O service trap. Each number in each array should
-  // be assigned randomly but you must make sure there are no 
-  //duplicates. The algorithm for invoking the trap call given.
-  I/O_1/2_Traps
+  int MAX_PC = 2345; // after PC reaches this, reset to zero
+   creation; //computer clock time when a process is created. 
+   termination; //computer clock time when process terminates and goes into termination list
+  int TERMINATE = 1; //process will terminate after this (1) many times it passes the MAX_PC
+  int term_count; // counter to keep track of how many times the process has passed MAX_PC
+  int[] I / O_trap1; //four numbers representing the PC counter where the process will execute -
+  int[] I / O_trap2; //an I/O service trap. Each # assigned random, no duplicates
+
 } PCB;
 
 typedef PCB * PCB_p;
@@ -65,5 +48,16 @@ unsigned short PCB_get_priority(PCB_p pcb);
 int PCB_set_pc(PCB_p pcb, unsigned long pc);
 unsigned long PCB_get_pc(PCB_p pcb);
 char * PCB_toString(PCB_p pcb, char * string);
+//// new fields (getters/setters)
+int PCB_get_MAX_PC();
+void PCB_set_creation(char*);
+void PCB_set_termination(char*);
+int PCB_get_TERMINATE();
+void PCB_set_term_count(int);
+int PCB_get_term_count;
+void PCB_set_trap1(int);
+int[] PCB_get_trap1();
+void PCB_set_trap2(int);
+int[] PCB_get_trap2();
 
 #endif
