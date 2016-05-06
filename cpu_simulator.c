@@ -41,13 +41,24 @@ void CPU_loop(void) {
 
 }
 
-/*
-void timerIR(void);
-void pseudoISR(void);
-void io_timer1(void);
-void io_timer2(void);
-void trap_handler(void);
-*/
+
+void timerIR(void) {
+
+}
+
+void pseudoISR(void) {
+
+}
+void io_timer1(void) {
+
+}
+void io_timer2(void) {
+
+}
+void trap_handler(void) {
+
+}
+
 
 void initPCB() {
 	PCB_p pcb = PCB_construct();
