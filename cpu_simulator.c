@@ -1,4 +1,3 @@
-//#include <stdio.h>
 #include "cpu_simulator.h"
 
 int main(void) {
@@ -14,17 +13,31 @@ int main(void) {
 	FIFOq_toString(newQueue, queue_string, queue_string_size);
 	printf("%s\n", queue_string);
 	free(queue_string);
-	/*
-	for (i = 0; i < 5; i++) {
+	
+    pthread_create(&timer_thread, NULL, timerIR, NULL);
+
+    printf("in main\n");
+
+	/*for (i = 0; i < 5; i++) {
 		CPU_loop();
-		printf("\nCPU Loop ran");
-	}
-	*/
+		printf("\nCPU Loop ran\n");
+	}*/
+
+    i = 0;
+    while (1) {
+        time_t rawtime;
+        struct tm * timeinfo;
+
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+        printf("%d: current time and date: %s", i, asctime(timeinfo)); i++; // prints time Antonio!
+    }
+	
 	return 0;
 }
 
 void initQueues() {
-	printf("we here");
+	printf("we here\n");
 	newQueue = FIFOq_construct();
 	FIFOq_init(newQueue);
 	readyQueue = FIFOq_construct();
@@ -41,9 +54,16 @@ void CPU_loop(void) {
 
 }
 
+void *timerIR(void) {
+    struct timespec tim, tim2;
+    tim.tv_sec = 0;
+    tim.tv_nsec = 50000000L;
 
-void timerIR(void) {
-
+    int i;
+    for (;;) { // make this for (;;) at the end so this loops forever.
+        printf("thread loop!\n");
+        nanosleep(&tim, &tim2);
+    }
 }
 
 void pseudoISR(void) {

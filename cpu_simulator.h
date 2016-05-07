@@ -23,7 +23,7 @@ pthread_mutex_t io2_lock;
 
 void initQueues();
 void CPU_loop();
-void timerIR();
+void *timerIR();
 void pseudoISR();
 void io_timer1();
 void io_timer2();
