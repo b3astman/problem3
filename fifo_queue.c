@@ -1,7 +1,7 @@
-#include <stdlib.h>
+/*#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include "fifo_queue.h"
+#include <string.h>*/
+//#include "fifo_queue.h" 
 
 FIFOq_p FIFOq_construct() {
     FIFOq_p fq = (FIFOq_p) malloc(sizeof(FIFOq));
@@ -107,7 +107,7 @@ int FIFOq_toString_size(FIFOq_p queue) {
 char* FIFOq_toString(FIFOq_p queue, char* string, int size) {
     // Note: We assume that the controller has allocated a string of appropriate size (using FIFOq_size() function).
     string[0] = '\0';   // I swear, this fixed so many freaking bugs -_-
-    strcat(string, "Head: ");
+    strcat(string, "\nHead: ");
     Node_p head = queue->front;
     while (head != NULL) {
         char* pcb_string = malloc(100);
@@ -119,6 +119,7 @@ char* FIFOq_toString(FIFOq_p queue, char* string, int size) {
             strcat(string, " -> ");
         }
         head = head->next;
+		strcat(string, "\n");
     }
     return string;
 }
