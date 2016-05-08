@@ -1,10 +1,12 @@
 //#include <stdio.h>
 #include "cpu_simulator.h"
 
+int pc = 0;
+
 int main(void) {
 	// Initialize the queues.
 	initQueues();
-	int i; 
+	int i;
 	for (i = 0; i < 10; i++) {
 		initPCB();
 		printf("\nPCB initialized");
@@ -37,8 +39,16 @@ void initQueues() {
 	FIFOq_init(io_queue2);
 }
 
+// "CPU is a loop that represents an execution cycle"
 void CPU_loop(void) {
+	// "each iteration represents a single instruction"
 
+	while (true) {
+		// "PC will be incremented by one each time through the loop"
+		// "...meaning that after the PC reaches 2345 it is reset to zero"
+		pc = (pc + 1) % MAX_PC;
+
+	}
 }
 
 

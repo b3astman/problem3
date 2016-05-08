@@ -5,6 +5,8 @@
 #include "pcb.h"
 #include "fifo_queue.h"
 
+int MAX_PC = 2345;
+
 FIFOq_p readyQueue;
 FIFOq_p newQueue;
 FIFOq_p terminateQueue;
