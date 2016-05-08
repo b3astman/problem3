@@ -43,11 +43,21 @@ void initQueues() {
 void CPU_loop(void) {
 	// "each iteration represents a single instruction"
 
-	while (true) {
+	while (1) {
 		// "PC will be incremented by one each time through the loop"
 		// "...meaning that after the PC reaches 2345 it is reset to zero"
 		pc = (pc + 1) % MAX_PC;
 
+		// "the CPU must compare the PC value with each of the values in the PCB I/O arrays"
+
+		for (int i = 0; i < 4; i++) {
+			if (PCB_get_trap1(current_process, i) == pc) {
+				//calls the I/O trap handler passing the trap service routine number (which I/O device is needed).
+			}
+			if (PCB_get_trap2(current_process, i) == pc) {
+				//calls the I/O trap handler passing the trap service routine number (which I/O device is needed).
+			}
+		}
 	}
 }
 

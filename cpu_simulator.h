@@ -7,6 +7,9 @@
 
 int MAX_PC = 2345;
 
+PCB_p current_process;
+PCB_p idle_process;
+
 FIFOq_p readyQueue;
 FIFOq_p newQueue;
 FIFOq_p terminateQueue;
