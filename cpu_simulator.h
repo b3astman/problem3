@@ -11,6 +11,7 @@ PCB_p current_process;
 PCB_p idle_process;
 
 FIFOq_p readyQueue;
+FIFOq_p waitQueue; // I think we need this? - Elijah
 FIFOq_p newQueue;
 FIFOq_p terminateQueue;
 FIFOq_p io_queue1;
@@ -32,5 +33,5 @@ void timerIR();
 void pseudoISR();
 void io_timer1();
 void io_timer2();
-void trap_handler();
+void trap_handler(int trap_service_routine_number);
 void initPCB();
