@@ -21,7 +21,8 @@ int main(void) {
     pthread_create(&timer_thread, NULL, timerIR, NULL);
 
     for (i = 0; i < 4000; i++) {
-        fprintf(output, "%d ", i);
+        //fprintf(output, "%d ", i);
+        printf("%d ", i);
 		CPU_loop();             
 	}
 
@@ -141,7 +142,8 @@ void CPU_loop(void) {
             }
         }
 	}
-	fprintf(output, "CPU Loop ran\n");
+	//fprintf(output, "CPU Loop ran\n");
+    printf("CPU Loop ran\n");
 }
 
 void *timerIR(void) {
