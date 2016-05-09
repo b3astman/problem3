@@ -20,24 +20,22 @@ unsigned long PC = 0;
 unsigned long SysStack;
 
 FIFOq_p readyQueue;
-FIFOq_p waitQueue; // I think we need this? - Elijah
+FIFOq_p waitQueue;
 FIFOq_p terminateQueue;
 FIFOq_p io_queue1;
 FIFOq_p io_queue2;
 
-//thread ids
+//thread id
 pthread_t timer_thread;
-pthread_t io1_thread;
-pthread_t io2_thread;
 
-//mutexes
+//mutex
 pthread_mutex_t timer_lock;
-pthread_mutex_t io1_lock;
-pthread_mutex_t io2_lock;
 
+//cond var
 pthread_cond_t timer_cond;
 
 int timer_waiting = 0; // boolean that helps with timer ir
+int timer_ir_count = 0; // used for testing delete!
 
 FILE* output;
 
@@ -50,4 +48,4 @@ void run_dispatcher();
 void io_timer1();
 void io_timer2();
 void trap_handler(int trap_service_routine_number);
-void initPCB();
+void initPCB(int);
