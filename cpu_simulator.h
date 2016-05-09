@@ -5,6 +5,9 @@
 #include "pcb.h"
 #include "fifo_queue.h"
 
+unsigned long PC = 0;
+unsigned long SysStack;
+
 FIFOq_p readyQueue;
 FIFOq_p newQueue;
 FIFOq_p terminateQueue;
@@ -20,6 +23,10 @@ pthread_t io2_thread;
 pthread_mutex_t timer_lock;
 pthread_mutex_t io1_lock;
 pthread_mutex_t io2_lock;
+
+pthread_cond_t timer_cond;
+
+int timer_waiting = 0; // boolean that helps with timer ir
 
 void initQueues();
 void CPU_loop();
