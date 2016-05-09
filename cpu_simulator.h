@@ -21,7 +21,6 @@ unsigned long SysStack;
 
 FIFOq_p readyQueue;
 FIFOq_p waitQueue; // I think we need this? - Elijah
-FIFOq_p newQueue;
 FIFOq_p terminateQueue;
 FIFOq_p io_queue1;
 FIFOq_p io_queue2;
