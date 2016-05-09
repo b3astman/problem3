@@ -23,8 +23,6 @@ int main(void) {
 
     for (i = 0; i < 4000; i++) { // this loop will call cpu_loop as many times as we want 
 		CPU_loop();             // rather than having cpu_loop have a loop inside of it.
-		int first = io_timer1();
-		int second = io_timer2();
 	}
 
     int queue_string_size = FIFOq_toString_size(readyQueue); // this block prints new Queue
@@ -40,8 +38,9 @@ int main(void) {
 
     printf("timer interrupt called %d times!", timer_ir_count);
 
-    //i = 0;
-    /*while (1) { // for timer interrupt testing.
+	/*
+    i = 0;
+    while (1) { // for timer interrupt testing.
         time_t rawtime;
         struct tm * timeinfo;
 
@@ -49,8 +48,7 @@ int main(void) {
         timeinfo = localtime(&rawtime);
         printf("%d: current time and date: %s", i, asctime(timeinfo)); // prints time Antonio!
         i++; 
-    }*/
-	
+    } */
 	return 0;
 }
 
@@ -71,6 +69,8 @@ void initQueues() {
 
 // "CPU is a loop that represents an execution cycle"
 void CPU_loop(void) {
+	int first = io_timer1();
+	int second = io_timer2();
     int i;
 	// "each iteration represents a single instruction"
     // "PC will be incremented by one each time through the loop"
@@ -80,7 +80,7 @@ void CPU_loop(void) {
     // check timer interrupt
     if (timer_waiting) {
         printf("timerwaiting!\n");
-        if (pthread_mutex_trylock(&timer_lock) == 0) {
+        if (pthread_mutex_trylock(&timer_lock) == 0) {// || first == 0 || second == 0
             printf("timer interrupt!\n");
             //timer interrupt has happened
             timer_ir_count++;
@@ -246,15 +246,12 @@ int io_timer2(void) {
 	return returnNum;
 }
 void trap_handler(int trap_service_routine_number) {
-	// active the IO device?
-	int what = io_timer1(); // How do I get the 1 back to CPU
-	
 	// "taking the running process out of that state and putting it into the waiting queue for the appropriate device"
 
 	FIFOq_enqueue(waitQueue, current_process);
 
 	// "This act also activates an internal timer in the device"
-	timerIR();
+	//timerIR();
 
 	// Should we make a device class?! - Elijah
 }
@@ -263,6 +260,14 @@ void trap_handler(int trap_service_routine_number) {
 void initPCB(int pid) {
 	PCB_p pcb = PCB_construct();
 	PCB_init(pcb);
+	time_t rawtime;
+	struct tm * timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	char* theFTime = asctime(timeinfo);
+	char* theTime;
+	strncpy(theTime, theFTime + 11, 8);
+	PCB_set_creation(pcb, theTime);
     PCB_set_state(pcb, ready);
     PCB_set_pid(pcb, pid);
 	FIFOq_enqueue(readyQueue, pcb);
