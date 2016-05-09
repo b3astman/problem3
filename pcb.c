@@ -22,7 +22,7 @@ int PCB_init(PCB_p pcb) {
     pcb->state = (State) DEFAULT_STATE;
     pcb->priority = DEFAULT_PRIORITY;
     pcb->pc = DEFAULT_PC;
-	//creation; //computer clock time when a process is created. 
+	//creation; //computer clock time when a process is created.
 	//termination; //computer clock time when process terminates and goes into termination list
 	pcb->TERMINATE = 1; //process will terminate after this (1) many times it passes the MAX_PC
 	pcb->term_count = 2; // counter to keep track of how many times the process has passed MAX_PC
@@ -147,7 +147,7 @@ void PCB_set_trap1(PCB_p pcb, int trap1, int index) {
 */
 
 int PCB_get_trap1(PCB_p pcb, int index) {
-	pcb->IO_trap1;
+	return (pcb->IO_trap1)[index];
 }
 
 /*
@@ -157,5 +157,5 @@ void PCB_set_trap2(PCB_p, int trap2, int index) {
 */
 
 int PCB_get_trap2(PCB_p pcb, int index) {
-	pcb->IO_trap2;
+	return (pcb->IO_trap2)[index];
 }
