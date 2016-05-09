@@ -21,8 +21,10 @@ int main(void) {
 	
     pthread_create(&timer_thread, NULL, timerIR, NULL);
 
-    for (i = 0; i < quantum; i++) { // this loop will call cpu_loop as many times as we want 
+    for (i = 0; i < 2000; i++) { // this loop will call cpu_loop as many times as we want 
 		CPU_loop();             // rather than having cpu_loop have a loop inside of it.
+		int first = io_timer1();
+		int second = io_timer2();
 	}
 
     int queue_string_size = FIFOq_toString_size(readyQueue); // this block prints new Queue
@@ -225,19 +227,19 @@ void run_dispatcher() {
 }
 
 int io_timer1(void) {
-	int returnNum = 1;
-	int timer1 = quantum * 3;
-	while (timer1 != 0) {
-		timer1--;
+	timer1--;
+	int returnNum = timer1;
+	if (timer1 == 0) {
+		timer1 = 900;
 	}
 	return returnNum;
 }
 
 int io_timer2(void) {
-	int returnNum = 1;
-	int timer2 = quantum * 4;
-	while (timer2 != 0) {
-		timer2--;
+	timer2--;
+	int returnNum = timer2;
+	if (timer2 == 0) {
+		timer2 = 1200;
 	}
 	return returnNum;
 }
