@@ -1,3 +1,8 @@
+/*
+ * Antonio Alvillar, Bethany Eastman, Edgardo Gutierrez, Gabriel Houle
+ * Problem 3 OS
+ */
+
 #include "cpu_simulator.h"
 
 int main(void) {

@@ -1,7 +1,7 @@
-/*#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>*/
-//#include "fifo_queue.h" 
+/*
+* Antonio Alvillar, Bethany Eastman, Edgardo Gutierrez, Gabriel Houle
+* Problem 3 OS
+*/
 
 FIFOq_p FIFOq_construct() {
     FIFOq_p fq = (FIFOq_p) malloc(sizeof(FIFOq));

@@ -1,7 +1,7 @@
-/*#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
-#include "pcb.h" */
+/*
+* Antonio Alvillar, Bethany Eastman, Edgardo Gutierrez, Gabriel Houle
+* Problem 3 OS
+*/
 
 // Function Prototypes
 char* getStateName(State state);

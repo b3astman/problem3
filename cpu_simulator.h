@@ -1,3 +1,8 @@
+/*
+ * Antonio Alvillar, Bethany Eastman, Edgardo Gutierrez, Gabriel Houle
+ * Problem 3 OS
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

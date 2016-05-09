@@ -1,3 +1,8 @@
+/*
+* Antonio Alvillar, Bethany Eastman, Edgardo Gutierrez, Gabriel Houle
+* Problem 3 OS
+*/
+
 #ifndef FIFO_QUEUE_H
 #define FIFO_QUEUE_H
 
