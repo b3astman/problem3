@@ -137,34 +137,34 @@ void run_scheduler(Interrupt interrupt_type) {
 
 void run_dispatcher() {
     // Save CPU state to current PCB (in our case, the current PC value).
-    PCB_set_pc(current_pcb, PC);
+    PCB_set_pc(current_process, PC);
 
     // Dequeue next waiting PCB, or the idle PCB if no ready PCBs exist.
     if(FIFOq_is_empty(ready_PCBs)) {
-        current_pcb = idle_pcb;
+        current_process = idle_pcb;
     } else {
-        current_pcb = FIFOq_dequeue(ready_PCBs);
+        current_process = FIFOq_dequeue(ready_PCBs);
     }
 
     // Print what process is to be dispatched (if four or more context switches have already been made.
     if(cswitch_no == 0) {
         char* pcb_string = malloc(100);
-        PCB_toString(current_pcb, pcb_string);
+        PCB_toString(current_process, pcb_string);
         fprintf(output, "Switching to: %s\n", pcb_string);
         free(pcb_string);
     }
 
     // Change state of the new current PCB to running.
-    PCB_set_state(current_pcb, running);
+    PCB_set_state(current_process, running);
 
     // Print what process is now dispatched (if four or more context switches have already been made.
     if(cswitch_no == 0) {
         char* pcb_string = malloc(100);
-        PCB_toString(current_pcb, pcb_string);
+        PCB_toString(current_process, pcb_string);
         fprintf(output, "Now running: %s\n", pcb_string);
         free(pcb_string);
     }
 
     // Copy new PC value to system stack.
-    SysStack = PCB_get_pc(current_pcb);
+    SysStack = PCB_get_pc(current_process);
 }
