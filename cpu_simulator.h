@@ -18,6 +18,9 @@ PCB_p idle_process;
 unsigned short cswitch_no = 0;
 unsigned long PC = 0;
 unsigned long SysStack;
+int quantum = 300; // number of execution cycles.
+int timer1 = 900;
+int timer2 = 1200;
 
 FIFOq_p readyQueue;
 FIFOq_p waitQueue;
@@ -45,7 +48,7 @@ void *timerIR();
 void pseudoISR();
 void run_scheduler(Interrupt);
 void run_dispatcher();
-void io_timer1();
-void io_timer2();
+int io_timer1();
+int io_timer2();
 void trap_handler(int trap_service_routine_number);
 void initPCB(int);
