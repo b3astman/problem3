@@ -8,7 +8,7 @@ int main(void) {
 	initQueues();
 	int i;
 	for (i = 0; i < 10; i++) {
-		initPCB();
+		initPCB(i);
 		//printf("\nPCB initialized");
 	}
 
@@ -21,7 +21,7 @@ int main(void) {
 	
     pthread_create(&timer_thread, NULL, timerIR, NULL);
 
-    for (i = 0; i < 100; i++) { // this loop will call cpu_loop as many times as we want 
+    for (i = 0; i < 20000; i++) { // this loop will call cpu_loop as many times as we want 
 		CPU_loop();             // rather than having cpu_loop have a loop inside of it.
 	}
 
@@ -35,6 +35,8 @@ int main(void) {
     PCB_toString(current_process, pcb_string);
     printf("last running: %s\n", pcb_string);
     free(pcb_string);
+
+    printf("timer interrupted %d times!\n", timer_ir_count);
 
     //i = 0;
     /*while (1) { // for timer interrupt testing.
@@ -77,6 +79,7 @@ void CPU_loop(void) {
     if (timer_waiting) {
         printf("timerwaiting!\n");
         if (pthread_mutex_trylock(&timer_lock) == 0) {
+            timer_ir_count++;
             printf("timer interrupt!\n");
             //timer interrupt has happened
 
@@ -110,7 +113,7 @@ void *timerIR(void) {
     pthread_cond_init(&timer_cond, NULL);
     struct timespec tim, tim2;
     tim.tv_sec = 0;
-    tim.tv_nsec = 50000000L; // nanoseconds
+    tim.tv_nsec = 50000000L; // nanoseconds // 50000000L
 
     int i;
     for (;;) { 
@@ -180,34 +183,33 @@ void run_scheduler(Interrupt interrupt_type) {
 
         break;
     }
-    //// Housekeeping.
-    //// Deallocate any terminated PCBs and their resources.
-    //while (!FIFOq_is_empty(terminateQueue)) {
-    //    PCB_p terminated_pcb = FIFOq_dequeue(terminateQueue);
-    //    PCB_destruct(terminated_pcb);
-    //}
+    // Housekeeping.
+    // Deallocate any terminated PCBs and their resources.
+    while (!FIFOq_is_empty(terminateQueue)) {
+        PCB_p terminated_pcb = FIFOq_dequeue(terminateQueue);
+        PCB_destruct(terminated_pcb);
+    }
 }
 
 void run_dispatcher() {
     // Save CPU state to current PCB (in our case, the current PC value).
     PCB_set_pc(current_process, PC);
-    printf("dispatcher!");
+    printf("dispatcher!\n");
 
     // Dequeue next waiting PCB, or the idle PCB if no ready PCBs exist.
     if (FIFOq_is_empty(readyQueue)) {
         current_process = idle_process;
     } else {
-        //printf("switching to new process");
         current_process = FIFOq_dequeue(readyQueue);
     }
 
     // Print what process is to be dispatched (if four or more context switches have already been made.
-    //if (cswitch_no == 0) {
+    if (cswitch_no == 0) {
         char* pcb_string = malloc(1000);
         PCB_toString(current_process, pcb_string);
-        printf("Switching to: %s\n", pcb_string);
+        fprintf(output, "Switching to: %s\n", pcb_string);
         free(pcb_string);
-    //}
+    }
 
     // Change state of the new current PCB to running.
     PCB_set_state(current_process, running);
@@ -242,9 +244,10 @@ void trap_handler(int trap_service_routine_number) {
 }
 
 
-void initPCB() {
+void initPCB(int pid) {
 	PCB_p pcb = PCB_construct();
 	PCB_init(pcb);
     PCB_set_state(pcb, ready);
+    PCB_set_pid(pcb, (unsigned long) pid);
 	FIFOq_enqueue(readyQueue, pcb);
 }
