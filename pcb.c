@@ -26,10 +26,11 @@ int PCB_init(PCB_p pcb) {
 	//termination; //computer clock time when process terminates and goes into termination list
 	pcb->TERMINATE = 1; //process will terminate after this (1) many times it passes the MAX_PC
 	pcb->term_count = 2; // counter to keep track of how many times the process has passed MAX_PC
+    pcb->MAX_PC = 2345;
 	int i;
 	for (i = 0; i < 4; i++) {
-		pcb->IO_trap1[i] = rand();
-		pcb->IO_trap2[i] = rand();
+		pcb->IO_trap1[i] = rand() % pcb->MAX_PC;
+		pcb->IO_trap2[i] = rand() % pcb->MAX_PC;
 	}
     return SUCCESS;
 }
