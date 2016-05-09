@@ -21,7 +21,7 @@ int main(void) {
 	
     pthread_create(&timer_thread, NULL, timerIR, NULL);
 
-    for (i = 0; i < 100; i++) { // this loop will call cpu_loop as many times as we want 
+    for (i = 0; i < quantum; i++) { // this loop will call cpu_loop as many times as we want 
 		CPU_loop();             // rather than having cpu_loop have a loop inside of it.
 	}
 
@@ -224,21 +224,35 @@ void run_dispatcher() {
     SysStack = PCB_get_pc(current_process);
 }
 
-void io_timer1(void) {
-
+int io_timer1(void) {
+	int returnNum = 1;
+	int timer1 = quantum * 3;
+	while (timer1 != 0) {
+		timer1--;
+	}
+	return returnNum;
 }
-void io_timer2(void) {
 
+int io_timer2(void) {
+	int returnNum = 1;
+	int timer2 = quantum * 4;
+	while (timer2 != 0) {
+		timer2--;
+	}
+	return returnNum;
 }
 void trap_handler(int trap_service_routine_number) {
+	// active the IO device?
+	int what = io_timer1(); // How do I get the 1 back to CPU
+	
 	// "taking the running process out of that state and putting it into the waiting queue for the appropriate device"
 
 	FIFOq_enqueue(waitQueue, current_process);
 
 	// "This act also activates an internal timer in the device"
+	timerIR();
 
 	// Should we make a device class?! - Elijah
-
 }
 
 

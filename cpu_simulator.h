@@ -18,6 +18,7 @@ PCB_p idle_process;
 unsigned short cswitch_no = 0;
 unsigned long PC = 0;
 unsigned long SysStack;
+int quantum = 300; // number of execution cycles.
 
 FIFOq_p readyQueue;
 FIFOq_p waitQueue; // I think we need this? - Elijah
