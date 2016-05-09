@@ -102,21 +102,12 @@ char* getStateName(State state) {
 }
 
 char * PCB_toString(PCB_p pcb, char * string) {
-  sprintf(string, "PID: 0x%0lX, State: %s, Priority: 0x%0X, PC: 0x%04lX",
-          pcb->pid, getStateName(pcb->state), pcb->priority, pcb->pc);
+  sprintf(string, "PID: 0x%0lX, State: %s, Priority: 0x%0X, PC: 0x%04lX",//, Creation Time: %s",
+      pcb->pid, getStateName(pcb->state), pcb->priority, pcb->pc);//, pcb->creation);
   return string;
 }
 
-/*
-int MAX_PC = 2345; // after PC reaches this, reset to zero
-char* creation; //computer clock time when a process is created.
-char* termination; //computer clock time when process terminates and goes into termination list
-int TERMINATE = 1; //process will terminate after this (1) many times it passes the MAX_PC
-int term_count; // counter to keep track of how many times the process has passed MAX_PC
-int[] I / O_trap1; //four numbers representing the PC counter where the process will execute -
-int[] I / O_trap2; //an I/O service trap. Each # assigned random, no duplicates
-*/
-//// new fields getters and setters
+// new fields getters and setters
 int PCB_get_MAX_PC(PCB_p pcb) {
 	return pcb->MAX_PC;
 }
@@ -141,21 +132,9 @@ int PCB_get_term_count(PCB_p pcb) {
 	return pcb->term_count;
 }
 
-/*
-void PCB_set_trap1(PCB_p pcb, int trap1, int index) {
-	pcb->trap1[0] = trap1;
-}
-*/
-
 int PCB_get_trap1(PCB_p pcb, int index) {
 	return (pcb->IO_trap1)[index];
 }
-
-/*
-void PCB_set_trap2(PCB_p, int trap2, int index) {
-	pcb->trap2[index] = trap2;
-}
-*/
 
 int PCB_get_trap2(PCB_p pcb, int index) {
 	return (pcb->IO_trap2)[index];

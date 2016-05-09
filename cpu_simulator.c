@@ -46,15 +46,16 @@ int main(void) {
     printf("%s\n", queue_string);
     free(queue_string);
 
-    char* pcb_string = malloc(100);
+    char* pcb_string = malloc(200);
     PCB_toString(current_process, pcb_string);
     printf("Last running: %s\n", pcb_string);
     free(pcb_string);
 
     printf("Timer interrupt called %d times!", timer_ir_count);
 
-    //i = 0;
-    /*while (1) { // for timer interrupt testing.
+	/*
+    i = 0;
+    while (1) { // for timer interrupt testing.
         time_t rawtime;
         struct tm * timeinfo;
 
@@ -65,7 +66,6 @@ int main(void) {
     }*/
 	
     fclose(output);
-
 	return 0;
 }
 
@@ -86,6 +86,8 @@ void initQueues() {
 
 // "CPU is a loop that represents an execution cycle"
 void CPU_loop(void) {
+	int first = io_timer1();
+	int second = io_timer2();
     int i;
 	// "each iteration represents a single instruction"
     // "PC will be incremented by one each time through the loop"
@@ -203,7 +205,7 @@ void run_scheduler(Interrupt interrupt_type) {
 
             // Print stuff only if the old PCB wasn't the idle PCB (since it wasn't enqueued).
             if (previous_pcb != idle_process) {
-                char *pcb_string = malloc(100);
+                char *pcb_string = malloc(200);
                 PCB_toString(previous_pcb, pcb_string);
                 printf("Returned to ready queue: %s\n", pcb_string);
                 free(pcb_string);
@@ -256,7 +258,7 @@ void run_dispatcher() {
 
     // Print what process is to be dispatched (if four or more context switches have already been made.
     if (cswitch_no == 0) {
-        char* pcb_string = malloc(1000);
+        char* pcb_string = malloc(200);
         PCB_toString(current_process, pcb_string);
         printf("Switching to: %s\n", pcb_string);
         free(pcb_string);
@@ -267,7 +269,7 @@ void run_dispatcher() {
 
     // Print what process is now dispatched (if four or more context switches have already been made.
     if (cswitch_no == 0) {
-        char* pcb_string = malloc(100);
+        char* pcb_string = malloc(200);
         PCB_toString(current_process, pcb_string);
         printf("Now running: %s\n", pcb_string);
         free(pcb_string);
@@ -294,6 +296,7 @@ int io_timer2(void) {
 	}
 	return returnNum;
 }
+
 void trap_handler(int device_num) {
 
     PCB_set_pc(current_process, PC);
@@ -326,6 +329,14 @@ void io_ISR(int device_num) {
 void initPCB(int pid) {
 	PCB_p pcb = PCB_construct();
 	PCB_init(pcb);
+	time_t rawtime;
+	struct tm * timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	char* theFTime = asctime(timeinfo);
+	//char* theTime = malloc(100);
+	//strncpy(theTime, theFTime + 11, 8);
+	PCB_set_creation(pcb, theFTime);
     PCB_set_state(pcb, ready);
     PCB_set_pid(pcb, pid);
 	FIFOq_enqueue(readyQueue, pcb);
