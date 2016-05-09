@@ -8,7 +8,7 @@ int main(void) {
 	initQueues();
 	int i;
 	for (i = 0; i < 10; i++) {
-		initPCB();
+		initPCB(i);
 		//printf("\nPCB initialized");
 	}
 
@@ -21,7 +21,7 @@ int main(void) {
 	
     pthread_create(&timer_thread, NULL, timerIR, NULL);
 
-    for (i = 0; i < 2000; i++) { // this loop will call cpu_loop as many times as we want 
+    for (i = 0; i < 4000; i++) { // this loop will call cpu_loop as many times as we want 
 		CPU_loop();             // rather than having cpu_loop have a loop inside of it.
 		int first = io_timer1();
 		int second = io_timer2();
@@ -37,6 +37,8 @@ int main(void) {
     PCB_toString(current_process, pcb_string);
     printf("last running: %s\n", pcb_string);
     free(pcb_string);
+
+    printf("timer interrupt called %d times!", timer_ir_count);
 
     //i = 0;
     /*while (1) { // for timer interrupt testing.
@@ -81,7 +83,7 @@ void CPU_loop(void) {
         if (pthread_mutex_trylock(&timer_lock) == 0) {
             printf("timer interrupt!\n");
             //timer interrupt has happened
-
+            timer_ir_count++;
             // Push PC to the system stack (pseudo-push).
             SysStack = PC;
 
@@ -258,9 +260,10 @@ void trap_handler(int trap_service_routine_number) {
 }
 
 
-void initPCB() {
+void initPCB(int pid) {
 	PCB_p pcb = PCB_construct();
 	PCB_init(pcb);
     PCB_set_state(pcb, ready);
+    PCB_set_pid(pcb, pid);
 	FIFOq_enqueue(readyQueue, pcb);
 }
