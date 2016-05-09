@@ -51,7 +51,7 @@ int main(void) {
     printf("Last running: %s\n", pcb_string);
     free(pcb_string);
 
-    printf("Timer interrupt called %d times!", timer_ir_count);
+    printf("Timer interrupt called %d times!\n", timer_ir_count);
 
 	/*
     i = 0;
@@ -86,8 +86,8 @@ void initQueues() {
 
 // "CPU is a loop that represents an execution cycle"
 void CPU_loop(void) {
-	int first = io_timer1();
-	int second = io_timer2();
+	//int first = io_timer1();
+	//int second = io_timer2();
     int i;
 	// "each iteration represents a single instruction"
     // "PC will be incremented by one each time through the loop"
@@ -283,7 +283,7 @@ int io_timer1(void) {
 	timer1--;
 	int returnNum = timer1;
 	if (timer1 == 0) {
-		timer1 = 300;
+		timer1 = 300;//300
 	}
 	return returnNum;
 }
@@ -292,7 +292,7 @@ int io_timer2(void) {
 	timer2--;
 	int returnNum = timer2;
 	if (timer2 == 0) {
-		timer2 = 400;
+		timer2 = 400; //400
 	}
 	return returnNum;
 }
