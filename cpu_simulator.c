@@ -9,7 +9,6 @@ int main(void) {
 	int i;
 	for (i = 0; i < 10; i++) {
 		initPCB(i);
-		//printf("\nPCB initialized");
 	}
 
     idle_process = PCB_construct();
@@ -21,22 +20,38 @@ int main(void) {
 	
     pthread_create(&timer_thread, NULL, timerIR, NULL);
 
-    for (i = 0; i < 4000; i++) { // this loop will call cpu_loop as many times as we want 
-		CPU_loop();             // rather than having cpu_loop have a loop inside of it.
+    for (i = 0; i < 4000; i++) {
+        printf("%d ", i);
+		CPU_loop();             
 	}
 
+    printf("\nReady Queue contents:\n");
     int queue_string_size = FIFOq_toString_size(readyQueue); // this block prints new Queue
     char* queue_string = malloc((size_t)queue_string_size);
     FIFOq_toString(readyQueue, queue_string, queue_string_size);
     printf("%s\n", queue_string);
     free(queue_string);
 
-    char* pcb_string = malloc(100);
+    printf("Waiting Queue1 Contents:\n");
+    queue_string_size = FIFOq_toString_size(waitQueue1); // this block prints new Queue
+    queue_string = malloc((size_t)queue_string_size);
+    FIFOq_toString(waitQueue1, queue_string, queue_string_size);
+    printf("%s\n", queue_string);
+    free(queue_string);
+
+    printf("Waiting Queue2 Contents:\n");
+    queue_string_size = FIFOq_toString_size(waitQueue2); // this block prints new Queue
+    queue_string = malloc((size_t)queue_string_size);
+    FIFOq_toString(waitQueue2, queue_string, queue_string_size);
+    printf("%s\n", queue_string);
+    free(queue_string);
+
+    char* pcb_string = malloc(200);
     PCB_toString(current_process, pcb_string);
-    printf("last running: %s\n", pcb_string);
+    printf("Last running: %s\n", pcb_string);
     free(pcb_string);
 
-    printf("timer interrupt called %d times!", timer_ir_count);
+    printf("Timer interrupt called %d times!", timer_ir_count);
 
 	/*
     i = 0;
@@ -48,13 +63,13 @@ int main(void) {
         timeinfo = localtime(&rawtime);
         printf("%d: current time and date: %s", i, asctime(timeinfo)); // prints time Antonio!
         i++; 
-    } */
+    }*/
+	
+    fclose(output);
 	return 0;
 }
 
 void initQueues() {
-	//newQueue = FIFOq_construct();
-	//FIFOq_init(newQueue);
 	readyQueue = FIFOq_construct();
 	FIFOq_init(readyQueue);
 	terminateQueue = FIFOq_construct();
@@ -63,8 +78,10 @@ void initQueues() {
 	FIFOq_init(io_queue1);
 	io_queue2 = FIFOq_construct();
 	FIFOq_init(io_queue2);
-	waitQueue = FIFOq_construct();
-	FIFOq_init(waitQueue);
+	waitQueue1 = FIFOq_construct();
+	FIFOq_init(waitQueue1);
+    waitQueue2 = FIFOq_construct();
+    FIFOq_init(waitQueue2);
 }
 
 // "CPU is a loop that represents an execution cycle"
@@ -79,9 +96,8 @@ void CPU_loop(void) {
     PCB_set_pc(current_process, PC);
     // check timer interrupt
     if (timer_waiting) {
-        printf("timerwaiting!\n");
-        if (pthread_mutex_trylock(&timer_lock) == 0) {// || first == 0 || second == 0
-            printf("timer interrupt!\n");
+        if (pthread_mutex_trylock(&timer_lock) == 0) {
+            printf("Timer interrupt!\n");
             //timer interrupt has happened
             timer_ir_count++;
             // Push PC to the system stack (pseudo-push).
@@ -95,18 +111,38 @@ void CPU_loop(void) {
             pthread_cond_signal(&timer_cond); // signal to timer to start over
         }
     }
-	// "the CPU must compare the PC value with each of the values in the PCB I/O arrays"
-	/*for (i = 0; i < 4; i++) {
-		if (PCB_get_trap1(current_process, i) == pc) {
-			//calls the I/O trap handler passing the trap service routine number (which I/O device is needed).
-			trap_handler(PCB_get_trap1(current_process, i));
-		}
-		if (PCB_get_trap2(current_process, i) == pc) {
-			//calls the I/O trap handler passing the trap service routine number (which I/O device is needed).
-			trap_handler(PCB_get_trap2(current_process, i));
-		}
-	}*/
-	printf("\nCPU Loop ran\n");
+    //do io interrupt check here.
+    if (!FIFOq_is_empty(waitQueue1)) {
+        int first = io_timer1();
+        if (first == 1) {
+            printf("IO completion Interrupt!");
+            io_ISR(1);
+        }
+    }
+    if (!FIFOq_is_empty(waitQueue2)) {
+        int second = io_timer2();
+        if (second == 1) {
+            printf("IO completion Interrupt!");
+            io_ISR(2);
+        }
+    }
+
+    // check for io trap calls
+	for (i = 0; i < 4; i++) {
+        if (current_process != idle_process) {
+            if (PCB_get_trap1(current_process, i) == PC) {
+                //calls the I/O trap handler passing the device number
+                trap_handler(1);
+                printf("Trap call for IO device 1!\n");
+            }
+            if (PCB_get_trap2(current_process, i) == PC) {
+                //calls the I/O trap handler passing the device number
+                trap_handler(2);
+                printf("Trap call for IO device 2!\n");
+            }
+        }
+	}
+	printf("CPU Loop ran\n");
 }
 
 void *timerIR(void) {
@@ -118,12 +154,14 @@ void *timerIR(void) {
 
     int i;
     for (;;) { 
-        printf("thread loop!\n");
         if (!timer_waiting) {
-            pthread_mutex_lock(&timer_lock); // gets mutex lock
+            // gets mutex lock
+            pthread_mutex_lock(&timer_lock); 
             timer_waiting = 1;
-            nanosleep(&tim, &tim2); // puts thread to sleep
-            pthread_cond_wait(&timer_cond, &timer_lock); // unlocks mutex and waits until interrupt is read by the CPU
+            // puts thread to sleep
+            nanosleep(&tim, &tim2); 
+            // unlocks mutex and waits until interrupt is read by the CPU
+            pthread_cond_wait(&timer_cond, &timer_lock); 
             pthread_mutex_unlock(&timer_lock);
         } 
     }
@@ -145,6 +183,7 @@ void pseudoISR(void) {
 
 void run_scheduler(Interrupt interrupt_type) {
     PCB_p previous_pcb;
+    PCB_p finished_pcb;
     switch (interrupt_type) {
     case timer_interrupt:
         previous_pcb = current_process;
@@ -166,15 +205,15 @@ void run_scheduler(Interrupt interrupt_type) {
 
             // Print stuff only if the old PCB wasn't the idle PCB (since it wasn't enqueued).
             if (previous_pcb != idle_process) {
-                char *pcb_string = malloc(100);
+                char *pcb_string = malloc(200);
                 PCB_toString(previous_pcb, pcb_string);
-                fprintf(output, "Returned to ready queue: %s\n", pcb_string);
+                printf("Returned to ready queue: %s\n", pcb_string);
                 free(pcb_string);
 
                 int queue_string_size = FIFOq_toString_size(readyQueue);
                 char* queue_string = malloc((size_t)queue_string_size);
                 FIFOq_toString(readyQueue, queue_string, queue_string_size);
-                fprintf(output, "%s\n", queue_string);
+                printf("%s\n", queue_string);
                 free(queue_string);
             }
         } else {
@@ -183,44 +222,56 @@ void run_scheduler(Interrupt interrupt_type) {
         }
 
         break;
+    // io is done, takes process out of waiting queue and puts in ready queue.
+    case io1_interrupt:
+        finished_pcb = FIFOq_dequeue(waitQueue1);
+        PCB_set_state(finished_pcb, ready);
+        FIFOq_enqueue(readyQueue, finished_pcb);
+
+        break;
+    case io2_interrupt:
+        finished_pcb = FIFOq_dequeue(waitQueue2);;
+        PCB_set_state(finished_pcb, ready);
+        FIFOq_enqueue(readyQueue, finished_pcb);
+
+        break;
     }
-    //// Housekeeping.
-    //// Deallocate any terminated PCBs and their resources.
-    //while (!FIFOq_is_empty(terminateQueue)) {
-    //    PCB_p terminated_pcb = FIFOq_dequeue(terminateQueue);
-    //    PCB_destruct(terminated_pcb);
-    //}
+
+    // Housekeeping.
+    // Deallocate any terminated PCBs and their resources.
+    while (!FIFOq_is_empty(terminateQueue)) {
+        PCB_p terminated_pcb = FIFOq_dequeue(terminateQueue);
+        PCB_destruct(terminated_pcb);
+    }
 }
 
 void run_dispatcher() {
     // Save CPU state to current PCB (in our case, the current PC value).
     PCB_set_pc(current_process, PC);
-    printf("dispatcher!");
 
     // Dequeue next waiting PCB, or the idle PCB if no ready PCBs exist.
     if (FIFOq_is_empty(readyQueue)) {
         current_process = idle_process;
     } else {
-        //printf("switching to new process");
         current_process = FIFOq_dequeue(readyQueue);
     }
 
     // Print what process is to be dispatched (if four or more context switches have already been made.
-    //if (cswitch_no == 0) {
-        char* pcb_string = malloc(1000);
+    if (cswitch_no == 0) {
+        char* pcb_string = malloc(200);
         PCB_toString(current_process, pcb_string);
         printf("Switching to: %s\n", pcb_string);
         free(pcb_string);
-    //}
+    }
 
     // Change state of the new current PCB to running.
     PCB_set_state(current_process, running);
 
     // Print what process is now dispatched (if four or more context switches have already been made.
     if (cswitch_no == 0) {
-        char* pcb_string = malloc(100);
+        char* pcb_string = malloc(200);
         PCB_toString(current_process, pcb_string);
-        fprintf(output, "Now running: %s\n", pcb_string);
+        printf("Now running: %s\n", pcb_string);
         free(pcb_string);
     }
 
@@ -232,7 +283,7 @@ int io_timer1(void) {
 	timer1--;
 	int returnNum = timer1;
 	if (timer1 == 0) {
-		timer1 = 900;
+		timer1 = 300;
 	}
 	return returnNum;
 }
@@ -241,19 +292,37 @@ int io_timer2(void) {
 	timer2--;
 	int returnNum = timer2;
 	if (timer2 == 0) {
-		timer2 = 1200;
+		timer2 = 400;
 	}
 	return returnNum;
 }
-void trap_handler(int trap_service_routine_number) {
-	// "taking the running process out of that state and putting it into the waiting queue for the appropriate device"
 
-	FIFOq_enqueue(waitQueue, current_process);
+void trap_handler(int device_num) {
 
-	// "This act also activates an internal timer in the device"
-	//timerIR();
+    PCB_set_pc(current_process, PC);
+    PCB_set_state(current_process, waiting);
+    if (device_num == 1) { // puts process that called trap into waiting queue
+        FIFOq_enqueue(waitQueue1, current_process);
+    } else if (device_num == 2) {
+        FIFOq_enqueue(waitQueue2, current_process);
+    }
+    // gets next process to run
+    if (FIFOq_is_empty(readyQueue)) { 
+        current_process = idle_process;
+    } else {
+        current_process = FIFOq_dequeue(readyQueue);
+    }
 
-	// Should we make a device class?! - Elijah
+    PCB_set_state(current_process, running);
+    SysStack = PCB_get_pc(current_process);
+}
+
+void io_ISR(int device_num) {
+    if (device_num == 1) {
+        run_scheduler(io1_interrupt);
+    } else if (device_num == 2) {
+        run_scheduler(io2_interrupt);
+    }
 }
 
 
@@ -265,9 +334,9 @@ void initPCB(int pid) {
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 	char* theFTime = asctime(timeinfo);
-	char* theTime;
-	strncpy(theTime, theFTime + 11, 8);
-	PCB_set_creation(pcb, theTime);
+	//char* theTime = malloc(100);
+	//strncpy(theTime, theFTime + 11, 8);
+	PCB_set_creation(pcb, theFTime);
     PCB_set_state(pcb, ready);
     PCB_set_pid(pcb, pid);
 	FIFOq_enqueue(readyQueue, pcb);

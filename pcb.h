@@ -1,4 +1,3 @@
-
 #ifndef PCB_H
 #define PCB_H
 
@@ -23,7 +22,7 @@ typedef struct pcb {
   unsigned short priority;
   unsigned long pc;
 
-  int MAX_PC;// = 2345; // after PC reaches this, reset to zero
+  int MAX_PC; // after PC reaches this, reset to zero
   char * creation; //computer clock time when a process is created. 
   char * termination; //computer clock time when process terminates and goes into termination list
   int TERMINATE; //process will terminate after this (1) many times it passes the MAX_PC
@@ -48,7 +47,7 @@ unsigned short PCB_get_priority(PCB_p pcb);
 int PCB_set_pc(PCB_p pcb, unsigned long pc);
 unsigned long PCB_get_pc(PCB_p pcb);
 char * PCB_toString(PCB_p pcb, char * string);
-//// new fields (getters/setters)
+// new fields (getters/setters)
 int PCB_get_MAX_PC();
 void PCB_set_creation(PCB_p, char*);
 void PCB_set_termination(PCB_p, char*);

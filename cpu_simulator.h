@@ -6,7 +6,9 @@
 #include "fifo_queue.h"
 
 typedef enum interrupt_type {
-    timer_interrupt
+    timer_interrupt,
+    io1_interrupt,
+    io2_interrupt
 } Interrupt;
 
 int MAX_PC = 2345;
@@ -23,7 +25,8 @@ int timer1 = 900;
 int timer2 = 1200;
 
 FIFOq_p readyQueue;
-FIFOq_p waitQueue;
+FIFOq_p waitQueue1;
+FIFOq_p waitQueue2;
 FIFOq_p terminateQueue;
 FIFOq_p io_queue1;
 FIFOq_p io_queue2;
@@ -50,5 +53,6 @@ void run_scheduler(Interrupt);
 void run_dispatcher();
 int io_timer1();
 int io_timer2();
-void trap_handler(int trap_service_routine_number);
+void trap_handler(int);
+void io_ISR(int);
 void initPCB(int);
