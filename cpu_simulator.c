@@ -21,37 +21,37 @@ int main(void) {
     pthread_create(&timer_thread, NULL, timerIR, NULL);
 
     for (i = 0; i < 4000; i++) {
-        printf("%d ", i);
+        fprintf(output, "%d ", i);
 		CPU_loop();             
 	}
 
-    printf("\nReady Queue contents:\n");
+    fprintf(output, "\nReady Queue contents:\n");
     int queue_string_size = FIFOq_toString_size(readyQueue); // this block prints new Queue
     char* queue_string = malloc((size_t)queue_string_size);
     FIFOq_toString(readyQueue, queue_string, queue_string_size);
-    printf("%s\n", queue_string);
+    fprintf(output,"%s\n", queue_string);
     free(queue_string);
 
-    printf("Waiting Queue1 Contents:\n");
+    fprintf(output, "Waiting Queue1 Contents:\n");
     queue_string_size = FIFOq_toString_size(waitQueue1); // this block prints new Queue
     queue_string = malloc((size_t)queue_string_size);
     FIFOq_toString(waitQueue1, queue_string, queue_string_size);
-    printf("%s\n", queue_string);
+    fprintf(output, "%s\n", queue_string);
     free(queue_string);
 
-    printf("Waiting Queue2 Contents:\n");
+    fprintf(output, "Waiting Queue2 Contents:\n");
     queue_string_size = FIFOq_toString_size(waitQueue2); // this block prints new Queue
     queue_string = malloc((size_t)queue_string_size);
     FIFOq_toString(waitQueue2, queue_string, queue_string_size);
-    printf("%s\n", queue_string);
+    fprintf(output, "%s\n", queue_string);
     free(queue_string);
 
     char* pcb_string = malloc(200);
     PCB_toString(current_process, pcb_string);
-    printf("Last running: %s\n", pcb_string);
+    fprintf(output, "Last running: %s\n", pcb_string);
     free(pcb_string);
 
-    printf("Timer interrupt called %d times!", timer_ir_count);
+    fprintf(output, "Timer interrupt called %d times!", timer_ir_count);
 
 	/*
     i = 0;
@@ -97,7 +97,7 @@ void CPU_loop(void) {
     // check timer interrupt
     if (timer_waiting) {
         if (pthread_mutex_trylock(&timer_lock) == 0) {
-            printf("Timer interrupt!\n");
+            fprintf(output, "Timer interrupt!\n");
             //timer interrupt has happened
             timer_ir_count++;
             // Push PC to the system stack (pseudo-push).
@@ -115,14 +115,14 @@ void CPU_loop(void) {
     if (!FIFOq_is_empty(waitQueue1)) {
         int first = io_timer1();
         if (first == 1) {
-            printf("IO completion Interrupt!");
+            fprintf(output, "IO completion Interrupt!");
             io_ISR(1);
         }
     }
     if (!FIFOq_is_empty(waitQueue2)) {
         int second = io_timer2();
         if (second == 1) {
-            printf("IO completion Interrupt!");
+            fprintf(output, "IO completion Interrupt!");
             io_ISR(2);
         }
     }
@@ -133,16 +133,16 @@ void CPU_loop(void) {
             if (PCB_get_trap1(current_process, i) == PC) {
                 //calls the I/O trap handler passing the device number
                 trap_handler(1);
-                printf("Trap call for IO device 1!\n");
+                fprintf(output, "Trap call for IO device 1!\n");
             }
             if (PCB_get_trap2(current_process, i) == PC) {
                 //calls the I/O trap handler passing the device number
                 trap_handler(2);
-                printf("Trap call for IO device 2!\n");
+                fprintf(output, "Trap call for IO device 2!\n");
             }
         }
 	}
-	printf("CPU Loop ran\n");
+	fprintf(output, "CPU Loop ran\n");
 }
 
 void *timerIR(void) {
@@ -207,13 +207,13 @@ void run_scheduler(Interrupt interrupt_type) {
             if (previous_pcb != idle_process) {
                 char *pcb_string = malloc(200);
                 PCB_toString(previous_pcb, pcb_string);
-                printf("Returned to ready queue: %s\n", pcb_string);
+                fprintf(output, "Returned to ready queue: %s\n", pcb_string);
                 free(pcb_string);
 
                 int queue_string_size = FIFOq_toString_size(readyQueue);
                 char* queue_string = malloc((size_t)queue_string_size);
                 FIFOq_toString(readyQueue, queue_string, queue_string_size);
-                printf("%s\n", queue_string);
+                fprintf(output, "%s\n", queue_string);
                 free(queue_string);
             }
         } else {
@@ -260,7 +260,7 @@ void run_dispatcher() {
     if (cswitch_no == 0) {
         char* pcb_string = malloc(200);
         PCB_toString(current_process, pcb_string);
-        printf("Switching to: %s\n", pcb_string);
+        fprintf(output, "Switching to: %s\n", pcb_string);
         free(pcb_string);
     }
 
@@ -271,7 +271,7 @@ void run_dispatcher() {
     if (cswitch_no == 0) {
         char* pcb_string = malloc(200);
         PCB_toString(current_process, pcb_string);
-        printf("Now running: %s\n", pcb_string);
+        fprintf(output, "Now running: %s\n", pcb_string);
         free(pcb_string);
     }
 
